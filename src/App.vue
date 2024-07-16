@@ -1,26 +1,48 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
+<script setup>
+import axios from 'axios';
+import { onBeforeMount, onMounted, ref } from 'vue';
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+onBeforeMount(async () => {
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+
+  const query = new URLSearchParams(location.search);
+  const authCode = query.get('code');
+
+  if (authCode) {
+    console.log(authCode);
+    try {
+      const { data } = await axios.post('http://localhost/api/login/callback', {
+        code: authCode
+      });
+
+      console.log(data);
+
+    } catch (e) {
+      console.error(e);
+    }
   }
-}
+
+
+
+});
+
+
+const link = ref("");
+
+onMounted(async () => {
+  try {
+    const { data } = await axios.get('http://localhost/api/login');
+
+    console.log(data.url);
+
+    link.value = data.url;
+
+  } catch (e) {
+
+  }
+});
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<template>
+  <a :href="link">Login google</a>
+</template>
